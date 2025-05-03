@@ -43,3 +43,98 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+/* Fix for Leaflet markers */
+.leaflet-div-icon {
+  background: transparent;
+  border: none;
+}
+
+/* Ensure map tiles display correctly */
+.leaflet-container {
+  background: #f8f9fa;
+}
+
+/* Remove default margins that might cause scrolling */
+body {
+  margin: 0;
+  padding: 0;
+}
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Add these to your existing CSS */
+.transition-transform {
+  transition-property: transform;
+}
+
+.duration-500 {
+  transition-duration: 300ms;
+}
+
+.ease-in-out {
+  transition-timing-function: ease-in-out;
+}
+
+.translate-x-0 {
+  transform: translateX(0);
+}
+
+.translate-x-full {
+  transform: translateX(100%);
+}
+
+.-translate-x-full {
+  transform: translateX(-100%);
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Performance optimizations */
+.news-container {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+/* .transition-transform {
+  transition-property: transform;
+}
+
+.duration-1000 {
+  transition-duration: 1000ms;
+}
+
+.ease-in-out {
+  transition-timing-function: ease-in-out;
+}
+
+.translate-x-0 {
+  transform: translateX(0);
+}
+
+.translate-x-full {
+  transform: translateX(100%);
+}
+
+.-translate-x-full {
+  transform: translateX(-100%);
+} */

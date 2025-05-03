@@ -3,6 +3,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 
 const Layout = ({ children }) => {
+  const isMapPage = window.location.pathname === '/map';
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />

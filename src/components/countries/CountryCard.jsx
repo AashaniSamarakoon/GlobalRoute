@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { CountryContext } from '../../context/CountryContext';
 
-const CountryCard = ({ country }) => {
+const CountryCard = ({ country, draggable = false }) => {
   const { currentUser } = useContext(AuthContext);
   const { toggleFavorite, isFavorite } = useContext(CountryContext);
   
@@ -18,7 +18,7 @@ const CountryCard = ({ country }) => {
   };
 
   return (
-    <div className="country-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
+    <div className={`country-card bg-white rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 ${draggable ? 'cursor-grab active:cursor-grabbing' : ''}`}>
       <Link to={`/country/${country.cca3}`} className="block">
         <div className="relative h-48 overflow-hidden">
           <img 

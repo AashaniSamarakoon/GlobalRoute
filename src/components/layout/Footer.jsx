@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-800 text-white py-8">
+    <footer className="bg-blue-950 text-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <div className="mb-4 md:mb-0">
@@ -20,10 +20,10 @@ const Footer = () => {
                 <circle cx="12" cy="12" r="10"></circle>
                 <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
               </svg>
-              <span className="ml-2 text-white font-bold text-xl">CountryExplorer</span>
+              <span className="ml-2 text-white font-bold text-xl">GlobleRoute</span>
             </div>
             <p className="text-gray-400 mt-2">
-              Explore countries around the world
+              Go Around the world with us! Discover countries, cultures, and more.
             </p>
           </div>
           
@@ -37,7 +37,7 @@ const Footer = () => {
               </a>
             </div>
             <p className="text-gray-400 mt-2">
-              © {new Date().getFullYear()} CountryExplorer. All rights reserved.
+              © {new Date().getFullYear()} GlobleRoute. All rights reserved.
             </p>
             <p className="text-gray-500 text-sm mt-1">
               Powered by <a href="https://restcountries.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">REST Countries API</a>
