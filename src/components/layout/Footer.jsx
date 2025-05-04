@@ -20,7 +20,7 @@ const Footer = () => {
                 <circle cx="12" cy="12" r="10"></circle>
                 <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
               </svg>
-              <span className="ml-2 text-white font-bold text-xl">GlobleRoute</span>
+              <span className="ml-2 text-white font-bold text-xl">GlobalRoute</span>
             </div>
             <p className="text-gray-400 mt-2">
               Go Around the world with us! Discover countries, cultures, and more.
@@ -37,7 +37,7 @@ const Footer = () => {
               </a>
             </div>
             <p className="text-gray-400 mt-2">
-              © {new Date().getFullYear()} GlobleRoute. All rights reserved.
+              © {new Date().getFullYear()} GlobalRoute. All rights reserved.
             </p>
             <p className="text-gray-500 text-sm mt-1">
               Powered by <a href="https://restcountries.com/" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">REST Countries API</a>

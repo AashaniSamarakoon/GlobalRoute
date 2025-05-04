@@ -54,7 +54,7 @@ const CountryRoutePlanner = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Travel Route Planner</h1>
-        <Link to="/" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+        <Link to="/" className="bg-blue-950 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
           Back to Countries
         </Link>
       </div>
