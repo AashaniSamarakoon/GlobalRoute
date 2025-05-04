@@ -13,6 +13,10 @@ A React application that allows users to explore countries around the world usin
 - Filter countries by region
 - View detailed information about each country
 - Add countries to favorites (requires login)
+- Map view of countries in the list
+- Global news page with upto date BBC news
+- Browse the news through news page
+- A travel route planner with dream county listing feature
 - Responsive design for all device sizes
 
 ## Technologies Used
@@ -23,6 +27,7 @@ A React application that allows users to explore countries around the world usin
 - **State Management**: Context API
 - **Authentication**: Local storage-based authentication (simulated)
 - **API**: REST Countries API
+- **ExternalURL**: Use the BBC global news fetching url to get daily BBC news
 - **Testing**: Jest and React Testing Library
 
 ## API Integration
@@ -120,7 +125,6 @@ Loading all countries at once caused performance issues. I optimized this by imp
 
 ## Future Improvements
 
-- Implement real backend authentication
 - Add more filtering options (population, area, etc.)
 - Implement a theme switcher (light/dark mode)
 - Add more detailed country information and visualizations
