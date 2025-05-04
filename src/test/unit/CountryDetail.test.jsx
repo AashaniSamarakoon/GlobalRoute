@@ -99,12 +99,15 @@ describe('CountryDetail Component', () => {
     });
   });
 
-  test('renders favorite button for authenticated users', async () => {
+// Update the favorite button test
+test('renders favorite button for authenticated users', async () => {
     fetchCountryByCode.mockResolvedValue(mockCountry);
     renderWithRouter('USA');
     
     await waitFor(() => {
-      expect(screen.getByRole('button', { name: /favorite/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { 
+        name: /add to favorites|remove from favorites/i 
+      })).toBeInTheDocument();
     });
   });
 
@@ -128,18 +131,22 @@ describe('CountryDetail Component', () => {
     });
   });
 
-  test('toggles favorite when favorite button is clicked', async () => {
+// Update the toggle favorite test
+test('toggles favorite when favorite button is clicked', async () => {
     fetchCountryByCode.mockResolvedValue(mockCountry);
     renderWithRouter('USA');
     
     await waitFor(() => {
-      const favoriteButton = screen.getByRole('button', { name: /favorite/i });
+      const favoriteButton = screen.getByRole('button', { 
+        name: /add to favorites|remove from favorites/i 
+      });
       fireEvent.click(favoriteButton);
       expect(mockCountryContext.toggleFavorite).toHaveBeenCalledWith('USA');
     });
   });
 
-  test('shows filled star when country is favorite', async () => {
+// Update the star icon tests
+test('shows filled star when country is favorite', async () => {
     fetchCountryByCode.mockResolvedValue(mockCountry);
     mockCountryContext.isFavorite.mockReturnValue(true);
     
@@ -151,7 +158,6 @@ describe('CountryDetail Component', () => {
       expect(starIcon).toHaveAttribute('color', '#f59e0b');
     });
   });
-
   test('shows empty star when country is not favorite', async () => {
     fetchCountryByCode.mockResolvedValue(mockCountry);
     mockCountryContext.isFavorite.mockReturnValue(false);
