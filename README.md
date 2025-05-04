@@ -4,7 +4,7 @@ A React application that allows users to explore countries around the world usin
 
 ## Live Demo
 
-[View the Live Demo](https://country-explorer-demo.netlify.app/)
+[View the Live Demo](https://global-route.vercel.app/)
 
 ## Features
 
@@ -126,10 +126,3 @@ Loading all countries at once caused performance issues. I optimized this by imp
 - Add more detailed country information and visualizations
 - Implement a map view of countries
 
-## License
-
-MIT
-
-## Author
-
-Your Name
