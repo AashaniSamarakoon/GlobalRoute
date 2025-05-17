@@ -50,25 +50,25 @@ const GlobalNewsPage = () => {
       const response = await axios.get(
         `https://api.rss2json.com/v1/api.json?rss_url=http://feeds.bbci.co.uk/news/world/rss.xml`,
         { signal: controller.signal }
-      );
-      
-      if (response.data?.status === 'ok') {
-// In your GlobalNewsPage component's fetchAllNews function:
-const formattedNews = (response.data.items || [])
-  .filter(item => item?.title && item?.description)
-  .map(item => ({
-    title: item.title?.trim(),
-    description: item.description?.replace(/<[^>]+>/g, '')?.trim(),
-    link: item.link,
-    enclosure: item.enclosure, // Make sure this is included
-    thumbnail: item.thumbnail,
-    urlToImage: item.enclosure?.link, // Prioritize enclosure link
-    media: item.media, // Include media object if available
-    source: { name: item.author || 'BBC News' },
-    publishedAt: item.pubDate || new Date().toISOString()
-  }));
+      );      if (response.data?.status === 'ok') {
+        const formattedNews = (response.data.items || [])
+          .filter(item => item?.title && item?.description)
+          .map(item => ({
+            title: item.title?.trim(),
+            description: item.description?.replace(/<[^>]+>/g, '')?.trim(),
+            link: item.link,
+            enclosure: item.enclosure,
+            thumbnail: item.thumbnail,
+            urlToImage: item.enclosure?.link || item.thumbnail,
+            source: { name: item.author || 'BBC News' },
+            publishedAt: item.pubDate || new Date().toISOString()
+          }));
           
-        setNews(formattedNews.length > 0 ? formattedNews : getFallbackNews());
+        if (formattedNews.length === 0) {
+          setNews([]);
+        } else {
+          setNews(formattedNews);
+        }
       } else {
         throw new Error(response.data?.message || 'Failed to fetch news');
       }
@@ -87,40 +87,22 @@ const formattedNews = (response.data.items || [])
     fetchAllNews();
   }, [fetchAllNews]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="max-w-6xl mx-auto p-4 min-h-screen">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Global News</h1>
-        <button 
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-blue-900 hover:text-blue-800 transition-colors"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-          </svg>
-          Back to Home
-        </button>
-      </div>
-
-      {error && (
-        <div className="p-4 bg-yellow-50 text-yellow-800 text-sm mb-4 rounded-lg">
-          <strong>Note:</strong> {error}. Showing {news.length > 0 ? 'some' : 'fallback'} news.
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">Global News</h1>
+      {loading ? (
+        <div data-testid="loading-spinner" className="flex justify-center items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
         </div>
-      )}
-
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      ) : error ? (
+        <div data-testid="error-message" className="text-red-500 text-center py-4">
+          {error.message || error}
+        </div>
+      ) : (
         <NewsItemList items={news} />
-      </div>
+      )}
     </div>
   );
-};
+}
 
 export default GlobalNewsPage;

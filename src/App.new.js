@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Home from './pages/Home';
@@ -15,41 +15,6 @@ import GlobalNewsPage from './pages/GlobalNewsPage';
 import CountryRoutePlanner from './pages/CountryRoutePlanner';
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        setIsLoading(true);
-        // Add any initial data loading here
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate initial load
-        setIsLoading(false);
-      } catch (err) {
-        setError(err.message);
-        setIsLoading(false);
-      }
-    };
-
-    initializeApp();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <div data-testid="loading-spinner" className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div data-testid="error-message" className="flex justify-center items-center h-screen text-red-500">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div data-testid="app-container">
       <AuthProvider>

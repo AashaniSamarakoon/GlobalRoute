@@ -38,9 +38,8 @@ const CountryDetail = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen-content">
-        <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
+    return (      <div className="flex justify-center items-center min-h-screen-content">
+        <div data-testid="loading-spinner" className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
       </div>
     );
   }
@@ -77,20 +76,22 @@ const CountryDetail = () => {
         </div>
         <div className="md:w-1/2 p-6">
           <div className="flex justify-between items-start">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">{country.name.common}</h1>
-            {currentUser && (
-              <button
+            <h1 role="heading" className="text-3xl font-bold text-gray-800 mb-4">{country.name.common}</h1>
+            {currentUser && (              <button
                 onClick={handleFavoriteClick}
                 className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-200"
+                aria-label={isFavorite(country.cca3) ? "Remove from favorites" : "Add to favorites"}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-6 w-6"
-                  fill={isFavorite(country.cca3) ? "currentColor" : "none"}
+                  fill={isFavorite(country.cca3) ? "currentColor" : "none"} 
                   viewBox="0 0 24 24"
                   stroke="currentColor"
                   strokeWidth="2"
                   color={isFavorite(country.cca3) ? "#f59e0b" : "#4b5563"}
+                  data-testid="favorite-icon"
+                  aria-hidden="true"
                 >
                   <path
                     strokeLinecap="round"
@@ -115,42 +116,42 @@ const CountryDetail = () => {
               <p className="text-gray-700">
                 <span className="font-semibold">Region: </span>
                 {country.region}
-              </p>
-              <p className="text-gray-700">
+              </p>              <p className="text-gray-700">
                 <span className="font-semibold">Sub Region: </span>
-                {country.subregion || 'N/A'}
+                <span data-testid="subregion">{country.subregion || 'N/A'}</span>
               </p>
               <p className="text-gray-700">
                 <span className="font-semibold">Capital: </span>
-                {country.capital ? country.capital.join(', ') : 'N/A'}
+                <span data-testid="capital">{country.capital ? country.capital.join(', ') : 'N/A'}</span>
               </p>
             </div>
 
-            <div>
-              <p className="text-gray-700">
+            <div>              <p className="text-gray-700">
                 <span className="font-semibold">Top Level Domain: </span>
-                {country.tld ? country.tld.join(', ') : 'N/A'}
+                <span data-testid="tld">{country.tld ? country.tld.join(', ') : 'N/A'}</span>
               </p>
               <p className="text-gray-700">
                 <span className="font-semibold">Currencies: </span>
+                <span data-testid="currencies">
                 {country.currencies
                   ? Object.values(country.currencies)
                       .map(currency => `${currency.name} (${currency.symbol})`)
                       .join(', ')
                   : 'N/A'}
+                </span>
               </p>
               <p className="text-gray-700">
                 <span className="font-semibold">Languages: </span>
+                <span data-testid="languages">
                 {country.languages
                   ? Object.values(country.languages).join(', ')
                   : 'N/A'}
+                </span>
               </p>
             </div>
-          </div>
-
-          <div className="mt-8">
+          </div>          <div className="mt-8">
             <h2 className="text-xl font-semibold text-gray-800 mb-3">Border Countries:</h2>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" data-testid="border-countries">
               {country.borders && country.borders.length > 0 ? (
                 country.borders.map(border => (
                   <Link
@@ -162,7 +163,7 @@ const CountryDetail = () => {
                   </Link>
                 ))
               ) : (
-                <span className="text-gray-500">No border countries</span>
+                <span className="text-gray-500" data-testid="no-borders">No border countries</span>
               )}
             </div>
           </div>

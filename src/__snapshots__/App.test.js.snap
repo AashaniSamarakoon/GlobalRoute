@@ -1,0 +1,14 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`App Component matches snapshot 1`] = `
+<DocumentFragment>
+  <div
+    class="flex justify-center items-center h-screen"
+    data-testid="loading-spinner"
+  >
+    <div
+      class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"
+    />
+  </div>
+</DocumentFragment>
+`;

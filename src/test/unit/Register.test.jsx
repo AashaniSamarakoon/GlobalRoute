@@ -88,9 +88,11 @@ describe('Register Component', () => {
       expect(mockRegister).toHaveBeenCalledWith(mockUserData);
     });
   });
-
   test('shows loading state during registration', async () => {
-    registerUser.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve({}), 1000)));
+    let resolveRegister;
+    registerUser.mockImplementation(() => new Promise(resolve => {
+      resolveRegister = resolve;
+    }));
     
     renderRegister();
     
@@ -101,10 +103,11 @@ describe('Register Component', () => {
     
     fireEvent.click(screen.getByText('Sign up'));
     
-    await waitFor(() => {
-      expect(screen.getByRole('button')).toBeDisabled();
-      expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
-    });
+    expect(screen.getByRole('button')).toBeDisabled();
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    
+    // Resolve the registration to clean up
+    resolveRegister({});
   });
 
   test('shows error message when registration fails', async () => {

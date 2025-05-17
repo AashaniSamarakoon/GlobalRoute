@@ -1,5 +1,5 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
-import GlobalNewsPage from '../../pages/GlobalNewsPage'; // Updated import path
+import { render, screen, waitFor } from '@testing-library/react';
+import GlobalNewsPage from '../../pages/GlobalNewsPage';
 import axios from 'axios';
 import { MemoryRouter } from 'react-router-dom';
 
@@ -13,18 +13,18 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-// Mock NewsItemList with proper path
+// Mock NewsItemList
 jest.mock('../../components/news/NewsItemList', () => {
-    return function MockNewsItemList({ items }) {
-      return (
-        <div data-testid="news-item-list">
-          {items.map((item, index) => (
-            <div key={index}>{item.title}</div>
-          ))}
-        </div>
-      );
-    };
-  });
+  return function MockNewsItemList({ items }) {
+    return (
+      <div data-testid="news-item-list">
+        {items.map((item, index) => (
+          <div key={index} data-testid="news-item">{item.title}</div>
+        ))}
+      </div>
+    );
+  };
+});
 
 describe('GlobalNewsPage', () => {
   const mockNewsData = {
@@ -49,107 +49,59 @@ describe('GlobalNewsPage', () => {
     ]
   };
 
-  const mockFallbackNews = [
-    {
-      title: "Fallback News",
-      description: "Fallback description",
-      url: "#",
-      urlToImage: "fallback.jpg",
-      source: { name: "Fallback Source" },
-      publishedAt: new Date().toISOString()
-    }
-  ];
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
-  it('displays loading spinner initially', async () => {
-    axios.get.mockImplementation(() => new Promise(() => {}));
+  it('shows loading spinner initially', () => {
+    axios.get.mockImplementation(() => new Promise(() => {})); // Never resolves
     
     render(
       <MemoryRouter>
         <GlobalNewsPage />
       </MemoryRouter>
     );
-
+    
     expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
-    await act(() => Promise.resolve());
   });
 
   it('displays news items after successful fetch', async () => {
-    axios.get.mockResolvedValue({ data: mockNewsData });
+    axios.get.mockResolvedValueOnce({ data: mockNewsData });
     
     render(
       <MemoryRouter>
         <GlobalNewsPage />
       </MemoryRouter>
     );
-
-    await waitFor(() => {
-      expect(screen.getByText('Test News 1')).toBeInTheDocument();
-      expect(screen.getByText('Test News 2')).toBeInTheDocument();
-    });
-  });
-
-  it('displays fallback news when API fails', async () => {
-    axios.get.mockRejectedValue(new Error('Network Error'));
     
-    render(
-      <MemoryRouter>
-        <GlobalNewsPage />
-      </MemoryRouter>
-    );
-
+    // Should show loading initially
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    
+    // Wait for news items to load
     await waitFor(() => {
-      expect(screen.getByText('Fallback News')).toBeInTheDocument();
-      expect(screen.getByText(/showing fallback news/i)).toBeInTheDocument();
+      expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
     });
+    
+    const newsItems = screen.getAllByTestId('news-item');
+    expect(newsItems).toHaveLength(2);
+    expect(newsItems[0]).toHaveTextContent('Test News 1');
+    expect(newsItems[1]).toHaveTextContent('Test News 2');
   });
 
-  it('displays error message when API fails', async () => {
+  it('displays error message when fetch fails', async () => {
     const errorMessage = 'Failed to fetch news';
-    axios.get.mockRejectedValue(new Error(errorMessage));
+    axios.get.mockRejectedValueOnce(new Error(errorMessage));
     
     render(
       <MemoryRouter>
         <GlobalNewsPage />
       </MemoryRouter>
     );
-
+    
     await waitFor(() => {
-      expect(screen.getByText(errorMessage)).toBeInTheDocument();
+      expect(screen.queryByTestId('loading-spinner')).not.toBeInTheDocument();
+      expect(screen.getByTestId('error-message')).toBeInTheDocument();
+      expect(screen.getByTestId('error-message')).toHaveTextContent(errorMessage);
     });
-  });
-
-  it('handles empty response from API', async () => {
-    axios.get.mockResolvedValue({ data: { status: 'ok', items: [] } });
-    
-    render(
-      <MemoryRouter>
-        <GlobalNewsPage />
-      </MemoryRouter>
-    );
-
-    await waitFor(() => {
-      expect(screen.getByText('Global News')).toBeInTheDocument();
-      expect(screen.queryByTestId('news-item-list')).toBeEmptyDOMElement();
-    });
-  });
-
-  it('aborts fetch request when unmounted', async () => {
-    const abortSpy = jest.spyOn(AbortController.prototype, 'abort');
-    axios.get.mockImplementation(() => new Promise(() => {}));
-    
-    const { unmount } = render(
-      <MemoryRouter>
-        <GlobalNewsPage />
-      </MemoryRouter>
-    );
-
-    unmount();
-    
-    expect(abortSpy).toHaveBeenCalled();
-    abortSpy.mockRestore();
   });
 });

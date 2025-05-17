@@ -1,396 +1,203 @@
-// import React, { useContext, useEffect, useState } from 'react';
-// import { CountryContext } from '../../context/CountryContext';
-// import { MapContainer, TileLayer, GeoJSON } from 'react-leaflet';
-// import 'leaflet/dist/leaflet.css';
-// import SearchBar from '../countries/SearchBar';
-// import FilterOptions from '../countries/FilterOptions';
-// // import Footer from '../layout/Footer';
-// // import Navbar from '../layout/Navbar';
-
-// const Map = () => {
-//   const { filteredCountries, loading, error } = useContext(CountryContext);
-//   const [mapData, setMapData] = useState(null);
-//   const [selectedCountry, setSelectedCountry] = useState(null);
-
-//   useEffect(() => {
-//     const fetchMapData = async () => {
-//       try {
-//         const response = await fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json');
-//         const data = await response.json();
-//         setMapData(data);
-//       } catch (err) {
-//         console.error('Error fetching map data:', err);
-//       }
-//     };
-
-//     fetchMapData();
-//   }, []);
-
-//   const countryStyle = (feature) => {
-//     const countryCode = feature.properties.iso_a3;
-//     const isHighlighted = filteredCountries.some(c => c.cca3 === countryCode);
-    
-//     return {
-//       fillColor: isHighlighted ? '#3b82f6' : '#cccccc',
-//       weight: 1,
-//       opacity: 1,
-//       color: 'white',
-//       fillOpacity: 0.7,
-//     };
-//   };
-
-//   const onEachCountry = (country, layer) => {
-//     const countryCode = country.properties.iso_a3;
-//     const matchedCountry = filteredCountries.find(c => c.cca3 === countryCode);
-    
-//     if (matchedCountry) {
-//       layer.bindPopup(`
-//         <div class="p-2">
-//           <h3 class="font-bold">${matchedCountry.name.common}</h3>
-//           <img src="${matchedCountry.flags.svg}" alt="${matchedCountry.name.common}" width="100" class="my-2"/>
-//           <p>Capital: ${matchedCountry.capital ? matchedCountry.capital[0] : 'N/A'}</p>
-//           <p>Population: ${matchedCountry.population.toLocaleString()}</p>
-//           <a href="/country/${matchedCountry.cca3}" class="text-blue-600 hover:underline">More details</a>
-//         </div>
-//       `);
-//     }
-
-//     layer.on({
-//       mouseover: (e) => {
-//         const layer = e.target;
-//         layer.setStyle({
-//           weight: 2,
-//           color: '#666',
-//           fillOpacity: 0.9
-//         });
-//       },
-//       mouseout: (e) => {
-//         const layer = e.target;
-//         layer.setStyle(countryStyle(country));
-//       },
-//       click: (e) => {
-//         setSelectedCountry(matchedCountry || null);
-//       }
-//     });
-//   };
-
-//   if (loading || !mapData) {
-//     return (
-//       <div className="flex justify-center items-center min-h-screen">
-//         <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-32 w-32"></div>
-//       </div>
-//     );
-//   }
-
-//   if (error) {
-//     return (
-//       <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-//         <strong className="font-bold">Error!</strong>
-//         <span className="block sm:inline"> {error}</span>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="flex flex-col min-h-screen">
-//       {/* Single Navbar - remove any other navbar instances */}
-//       {/* <Navbar /> */}
-      
-//       {/* Main Content Area - takes remaining space */}
-//       <main className="flex-1 relative">
-//         {/* Search and Filter Controls */}
-//         <div className="absolute top-4 left-4 right-4 z-[1000] flex flex-col md:flex-row gap-4">
-//           <SearchBar />
-//           <FilterOptions />
-//         </div>
-        
-//         {/* Map Container - fills available space */}
-//         <MapContainer 
-//           center={[20, 0]} 
-//           zoom={2} 
-//           style={{ height: '100%', width: '100%' }}
-//           className="absolute inset-0 z-0"
-//         >
-//           <TileLayer
-//             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-//             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-//           />
-//           <GeoJSON
-//             data={mapData}
-//             style={countryStyle}
-//             onEachFeature={onEachCountry}
-//           />
-//         </MapContainer>
-
-//         {/* Country Info Panel */}
-//         {selectedCountry && (
-//           <div className="absolute bottom-4 left-4 right-4 z-[1000] bg-white p-4 rounded-lg shadow-lg max-w-md mx-auto">
-//             {/* ... your country info panel content ... */}
-//           </div>
-//         )}
-//       </main>
-
-//       {/* Single Footer at bottom */}
-//       {/* <Footer /> */}
-//     </div>
-//   );
-// };
-
-// export default Map;
-
-
-
-
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, Tooltip, Popup } from 'react-leaflet';
+import { CountryContext } from '../../context/CountryContext';
+import { AuthContext } from '../../context/AuthContext';
 import 'leaflet/dist/leaflet.css';
-import { fetchAllCountries } from '../../services/api';
 import L from 'leaflet';
 
-const MapViewUpdater = ({ filteredCountries }) => {
-  const map = useMap();
+// Fix Leaflet marker icon issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
-  useEffect(() => {
-    if (filteredCountries?.features?.length > 0) {
-      const bounds = L.geoJSON(filteredCountries).getBounds();
-      if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [50, 50] });
-      }
-    }
-  }, [filteredCountries, map]);
-
-  return null;
+// New color scheme
+const COLORS = {
+  primary: '#0c3887', // Changed to blue-950 (dark blue) from teal
+  favorite: '#38B89C', // Purple for favorites (unchanged)
+  accent: '#4A5568',   // Dark gray for text
+  light: '#F7FAFC',    // Very light gray for backgrounds
+  border: '#E2E8F0'    // Light gray for borders
 };
 
-const Map = () => {
-  const [countriesGeoJSON, setCountriesGeoJSON] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [filteredCountries, setFilteredCountries] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [regionFilter, setRegionFilter] = useState('All');
-  const [selectedCountry, setSelectedCountry] = useState(null);
+// Create custom marker icons
+const createMarkerIcon = (color) => {  return L.divIcon({
+    className: 'custom-marker-icon',
+    html: `<div data-testid="marker-dot" style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white; box-shadow: 0 0 4px rgba(0,0,0,0.25);"></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  });
+};
 
+// Format population with commas
+const formatPopulation = (population) => {
+  return population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+const WorldMap = ({ favoritesOnly = false }) => {
+  const { countries, filteredCountries, isFavorite, getFavoriteCountries } = useContext(CountryContext);
+  const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Set map default properties
+  const mapCenter = [20, 0];
+  const mapZoom = 2;
+  
+  // Initialize map when component mounts
   useEffect(() => {
-    const loadCountries = async () => {
-      try {
-        const countries = await fetchAllCountries();
-        const geoJSON = {
-          type: "FeatureCollection",
-          features: countries.map(country => ({
-            type: "Feature",
-            properties: {
-              name: country.name.common,
-              iso_a3: country.cca3,
-              capital: country.capital?.[0] || 'N/A',
-              population: country.population,
-              flag: country.flags.svg,
-              region: country.region
-            },
-            geometry: {
-              type: "Point",
-              coordinates: [
-                country.latlng?.[1] || 0,
-                country.latlng?.[0] || 0
-              ]
-            }
-          }))
-        };
-        setCountriesGeoJSON(geoJSON);
-        setFilteredCountries(geoJSON);
-      } catch (error) {
-        console.error("Error loading countries:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadCountries();
+    setMapLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if (countriesGeoJSON) {
-      let filtered = countriesGeoJSON.features;
-      
-      if (searchQuery) {
-        filtered = filtered.filter(country => 
-          country.properties.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-      }
-      
-      if (regionFilter !== 'All') {
-        filtered = filtered.filter(country => 
-          country.properties.region === regionFilter
-        );
-      }
-      
-      setFilteredCountries({
-        ...countriesGeoJSON,
-        features: filtered
-      });
-    }
-  }, [searchQuery, regionFilter, countriesGeoJSON]);
+  // Determine which countries to display based on the favoritesOnly prop
+  const countriesToDisplay = favoritesOnly 
+    ? getFavoriteCountries()
+    : filteredCountries;
 
-  const onEachCountry = (feature, layer) => {
-    const countryData = feature.properties;
-    
-    layer.bindPopup(`
-      <div class="p-2 max-w-[200px]">
-        <h3 class="font-bold text-lg mb-2">${countryData.name}</h3>
-        <img src="${countryData.flag}" alt="${countryData.name}" class="w-full h-auto mb-2 border border-gray-200"/>
-        <p class="text-sm"><strong>Capital:</strong> ${countryData.capital}</p>
-        <p class="text-sm"><strong>Population:</strong> ${countryData.population.toLocaleString()}</p>
-      </div>
-    `);
+  // Filter countries that have valid coordinates
+  const countriesWithCoordinates = countriesToDisplay.filter(country => 
+    country.latlng && country.latlng.length === 2
+  );
 
-    layer.on({
-      mouseover: (e) => {
-        const layer = e.target;
-        layer.setStyle({
-          radius: 8,
-          fillColor: "#2563eb",
-          color: "#ffffff",
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.8
-        });
-      },
-      mouseout: (e) => {
-        const layer = e.target;
-        layer.setStyle({
-          radius: 5,
-          fillColor: "#3b82f6",
-          color: "#ffffff",
-          weight: 1,
-          opacity: 1,
-          fillOpacity: 0.8
-        });
-      },
-      click: (e) => {
-        setSelectedCountry(feature.properties);
-      }
-    });
+  const handleCountryClick = (countryCode) => {
+    navigate(`/country/${countryCode}`);
   };
 
-  return (
-    <div className="relative w-full h-screen" style={{ margin: 0, padding: 0 }}>
-      {/* Gray header bar with search controls */}
-      <div className="absolute top-0 left-0 right-0 z-[1000] bg-gray-100/90 backdrop-blur-sm px-4 py-3 shadow-sm border-b border-gray-200">
-        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row gap-3 items-center">
-          {/* Search Bar */}
-          <div className="relative flex-1 min-w-[200px]">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg className="h-5 w-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-              </svg>
+  // Create a marker for each country
+  const renderMarkers = () => {
+    return countriesWithCoordinates.map(country => {
+      const isCountryFavorite = currentUser && isFavorite(country.cca3);
+      const markerColor = isCountryFavorite ? COLORS.favorite : COLORS.primary;
+      const icon = createMarkerIcon(markerColor);
+      
+      return (
+        <Marker 
+          key={country.cca3}
+          position={[country.latlng[0], country.latlng[1]]} 
+          icon={icon}
+          eventHandlers={{
+            click: () => handleCountryClick(country.cca3),
+          }}
+          data-testid={`map-marker-${country.cca3}`}
+          data-favorite={isCountryFavorite}
+        >
+          {/* Enhanced tooltip that appears on hover */}
+          <Tooltip 
+            direction="top" 
+            offset={[0, -5]} 
+            opacity={1}
+            permanent={false}
+            className="custom-tooltip"
+          >
+            <div className="country-tooltip">
+              <div className="flex items-center mb-1">
+                <img 
+                  src={country.flags.svg} 
+                  alt={`Flag of ${country.name.common}`}
+                  className="w-6 h-4 mr-2 border border-gray-300"
+                />
+                <span className="font-bold text-sm">{country.name.common}</span>
+              </div>
+              <div className="text-xs grid grid-cols-2 gap-x-3 gap-y-1">
+                <div>Capital:</div>
+                <div className="font-medium">{country.capital ? country.capital[0] : 'N/A'}</div>
+                
+                <div>Region:</div>
+                <div className="font-medium">{country.region}</div>
+                
+                <div>Population:</div>
+                <div className="font-medium">{formatPopulation(country.population)}</div>
+              </div>
             </div>
-            <input
-              type="text"
-              placeholder="Search countries..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm placeholder-gray-500 transition-all"
-            />
-          </div>
+          </Tooltip>
           
-          {/* Region Filter */}
-          <div className="relative w-full sm:w-48 min-w-[160px]">
-            <select
-              value={regionFilter}
-              onChange={(e) => setRegionFilter(e.target.value)}
-              className="w-full pl-3 pr-8 py-2 border border-gray-300 rounded-md bg-white/90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm appearance-none"
-            >
-              <option value="All">All Regions</option>
-              <option value="Africa">Africa</option>
-              <option value="Americas">Americas</option>
-              <option value="Asia">Asia</option>
-              <option value="Europe">Europe</option>
-              <option value="Oceania">Oceania</option>
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
+          {/* Popup that appears on click */}
+          <Popup>
+            <div className="text-center">
+              <img 
+                src={country.flags.svg} 
+                alt={`Flag of ${country.name.common}`} 
+                className="w-20 h-12 object-cover mx-auto mb-2 border"
+              />
+              <div className="font-medium text-lg">{country.name.common}</div>
+              <div className="text-sm text-gray-600 mb-1">{country.capital ? country.capital[0] : 'N/A'}</div>
+              <div className="text-xs mb-2">Population: {formatPopulation(country.population)}</div>
+              <button 
+                onClick={() => handleCountryClick(country.cca3)}
+                className="mt-1 px-3 py-1 text-sm bg-teal-500 text-white rounded hover:bg-teal-600 transition-colors"
+                style={{ backgroundColor: COLORS.primary }}
+              >
+                View Details
+              </button>
             </div>
+          </Popup>
+        </Marker>
+      );
+    });
+  };
+  if (!mapLoaded) {
+    return (
+      <div data-testid="loading-spinner" className="flex justify-center items-center h-[500px]" style={{ backgroundColor: COLORS.light }}>
+        <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12" 
+             style={{ borderTopColor: COLORS.primary }}></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg shadow-lg bg-white overflow-hidden">
+      <div className="p-4 border-b flex flex-col sm:flex-row justify-between items-center gap-2" 
+           style={{ backgroundColor: COLORS.light, borderColor: COLORS.border }}>
+        <h2 className="font-bold text-lg" style={{ color: COLORS.accent }}>
+          {favoritesOnly ? "Your Favorite Countries" : "World Map"}
+        </h2>
+        <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex items-center">
+            <span className="w-3 h-3 rounded-full inline-block mr-1" 
+                  style={{ backgroundColor: favoritesOnly ? COLORS.favorite : COLORS.primary }}></span>
+            <span className="text-sm" style={{ color: COLORS.accent }}>
+              {favoritesOnly ? "Favorites" : "Countries"}
+            </span>
+          </div>
+          {!favoritesOnly && currentUser && (
+            <div className="flex items-center">
+              <span className="w-3 h-3 rounded-full inline-block mr-1" 
+                    style={{ backgroundColor: COLORS.favorite }}></span>
+              <span className="text-sm" style={{ color: COLORS.accent }}>Favorites</span>
+            </div>
+          )}
+          <div className="text-xs" style={{ color: COLORS.accent }}>
+            {countriesWithCoordinates.length} 
+            {favoritesOnly ? "Favorites" : "Countries"} on the map
           </div>
         </div>
       </div>
-
-      {/* Full-screen Map */}
-      <MapContainer 
-        center={[20, 0]} 
-        zoom={2} 
-        style={{ 
-          height: '100vh',
-          width: '100%',
-          margin: 0,
-          padding: 0,
-          position: 'absolute',
-          top: 0
-        }}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        />
-        <MapViewUpdater filteredCountries={filteredCountries} />
-        {filteredCountries && (
-          <GeoJSON
-            data={filteredCountries}
-            onEachFeature={onEachCountry}
-            pointToLayer={(feature, latlng) => {
-              return L.circleMarker(latlng, {
-                radius: 5,
-                fillColor: "#3b82f6",
-                color: "#ffffff",
-                weight: 1,
-                opacity: 1,
-                fillOpacity: 0.8
-              });
-            }}
+      
+      <div style={{ height: '500px', width: '100%', zIndex: 0 }} className="relative">
+        <MapContainer 
+          center={mapCenter} 
+          zoom={mapZoom} 
+          style={{ height: '100%', width: '100%' }}
+          minZoom={1}
+          scrollWheelZoom={true}
+        >
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-        )}
-      </MapContainer>
+          {renderMarkers()}
+        </MapContainer>
+      </div>
 
-      {/* Loading Overlay */}
-      {loading && (
-        <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-70 z-[1001]">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        </div>
-      )}
-
-      {/* Country Info Panel */}
-      {selectedCountry && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-[1000] bg-white rounded-lg shadow-xl overflow-hidden w-64 border border-gray-200">
-          <div className="bg-blue-600 p-3 text-white">
-            <div className="flex justify-between items-center">
-              <h3 className="font-bold text-lg truncate">{selectedCountry.name}</h3>
-              <button 
-                onClick={() => setSelectedCountry(null)}
-                className="text-white hover:text-gray-200 focus:outline-none text-lg"
-              >
-                &times;
-              </button>
-            </div>
-          </div>
-          <div className="p-4">
-            <img 
-              src={selectedCountry.flag} 
-              alt={selectedCountry.name} 
-              className="w-full h-24 object-contain border border-gray-200 rounded mb-3"
-            />
-            <div className="space-y-2 text-sm">
-              <p className="truncate">
-                <span className="font-semibold">Capital:</span> {selectedCountry.capital}
-              </p>
-              <p>
-                <span className="font-semibold">Population:</span> {selectedCountry.population.toLocaleString()}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="p-3 text-left text-sm border-t" 
+           style={{ backgroundColor: COLORS.light, borderColor: COLORS.border, color: COLORS.accent }}>
+         Click for more details on each country.
+      </div>
     </div>
   );
 };
 
-export default Map;
+export default WorldMap; 

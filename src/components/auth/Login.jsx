@@ -94,7 +94,7 @@ const Login = () => {
               type="submit"
               disabled={isLoading}
               className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                isLoading ? 'bg-blue-400' : 'bg-blue-600 hover:bg-blue-700'
+                isLoading ? 'bg-blue-400' : 'bg-blue-950 hover:bg-blue-700'
               } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
             >
               {isLoading ? (
@@ -110,9 +110,9 @@ const Login = () => {
         </form>
 
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
+          {/* <p className="text-sm text-gray-600">
             Note: This is a demo app. Any non-empty email and password will work.
-          </p>
+          </p> */}
         </div>
       </div>
     </div>

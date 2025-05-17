@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import { fetchAllCountries } from './services/api';
+import { fetchAllCountries } from '../../services/api';
 import { AuthProvider } from '../../context/AuthContext';
 import { CountryProvider } from '../../context/CountryContext';
 
@@ -11,7 +11,7 @@ jest.mock('../../services/api', () => ({
 }));
 
 // Mock authentication service
-jest.mock('./services/authService', () => ({
+jest.mock('../../services/authService', () => ({
   loginUser: jest.fn(),
   registerUser: jest.fn()
 }));

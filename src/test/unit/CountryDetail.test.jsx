@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import CountryDetail from '../../components/countries/CountryDetail'; // Update path as needed
 import { fetchCountryByCode } from '../../services/api';
@@ -88,8 +88,7 @@ describe('CountryDetail Component', () => {
     fetchCountryByCode.mockResolvedValue(mockCountry);
     renderWithRouter('USA');
     
-    await waitFor(() => {
-      expect(screen.getByText('United States')).toBeInTheDocument();
+    await waitFor(() => {      expect(screen.getByRole('heading', { name: 'United States' })).toBeInTheDocument();
       expect(screen.getByText('331,002,651')).toBeInTheDocument();
       expect(screen.getByText('Americas')).toBeInTheDocument();
       expect(screen.getByText('Washington D.C.')).toBeInTheDocument();

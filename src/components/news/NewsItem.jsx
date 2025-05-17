@@ -1,15 +1,12 @@
 import React, { memo, useState } from 'react';
 
-const NewsItem = memo(({ item }) => {
+const NewsItem = memo(({ item = {} }) => {
   const [imgSrc, setImgSrc] = useState(() => {
     // Prioritize different image sources in this order
     const sources = [
       item.enclosure?.link,  // RSS enclosure link
       item.thumbnail,        // Common thumbnail field
       item.urlToImage,       // Standard API field
-      // BBC-specific media content
-      item.media?.thumbnail?.url,
-      item.media?.content?.url,
       // Fallback placeholder
       `https://via.placeholder.com/300/3B82F6/FFFFFF?text=${
         encodeURIComponent((item.source?.name || 'News').substring(0, 15))
@@ -21,7 +18,7 @@ const NewsItem = memo(({ item }) => {
 
   const handleImageError = () => {
     // Try HTTPS if HTTP fails
-    if (imgSrc.startsWith('http:')) {
+    if (imgSrc?.startsWith('http:')) {
       setImgSrc(imgSrc.replace('http:', 'https:'));
     } else {
       // Fallback to placeholder
